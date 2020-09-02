@@ -1,0 +1,69 @@
+---
+layout: post
+status: publish
+published: true
+title: 'Linux Tips: Create a Bootable Flash Drive with Command Line'
+author:
+  display_name: Gayan Karunarathna
+  login: gayan
+  email: gayan@meemek.com
+  url: http://blog.meemek.com
+author_login: gayan
+author_email: gayan@meemek.com
+author_url: http://blog.meemek.com
+wordpress_id: 12
+wordpress_url: https://blog.meemek.com/?p=12
+date: '2019-06-01 09:33:32 +0000'
+date_gmt: '2019-06-01 09:33:32 +0000'
+categories:
+- Linux
+tags: []
+comments:
+- id: 2
+  author: Lahiru
+  author_email: lahiru.rng@gmail.com
+  author_url: ''
+  date: '2019-06-01 12:00:39 +0000'
+  date_gmt: '2019-06-01 12:00:39 +0000'
+  content: Noted.thanks
+---
+<p><!-- wp:paragraph {"dropCap":true} --></p>
+<p class="has-drop-cap">If you want to make a bootable flash drive on Linux, what are your options? The "simplest" being, using special softwares like Unetbootin or Ubuntu's pre-installed Startup Disk Creator. Of course if you are on an other Linux environment, you definitely going to need to hunt for bootable disk creation softwares. So what other options do we have? Well, according to some, there is a more simple way to create a bootable drive and that involves little bit of command line. So how exactly do we do that?</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>WARNING: This will erase your flash drive without any warning!</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p> First plug in your flash drive and fire up the Terminal. Then execute,</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>$ lsblk</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>You should see an output like below,</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":13} --></p>
+<figure class="wp-block-image"><img src="/images/2019/06/lsblk-output.png" alt="" class="wp-image-13" /><br />
+<figcaption>lsblk output</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Carefully identify your flash drive from the output as <strong>d</strong><em><strong>oing this on a wrong drive will definitely mess your system up in a blink of an eye</strong></em>. In here my flash drive has the identifier of <strong>sdb</strong>. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Now grab the ISO file of your Operating System of choice and note down the full path to the file. Then execute, (Do not forget to replace /dev/<strong>sdb</strong> part with device identifier which we have identified in the previous step)</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>$ sudo dd if=&lt;PATH_TO_ISO_FILE&gt; of=/dev/sdb bs=4M status=progress</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>Upon executing the above command, you should see a nice output of progress.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":14} --></p>
+<figure class="wp-block-image"><img src="/images/2019/06/dd-output.png" alt="" class="wp-image-14" /><br />
+<figcaption>dd command progress</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>After the command finished, plug in your flash drive and reboot the system. You should boot into the newly flashed operating system.</p>
+<p><!-- /wp:paragraph --></p>

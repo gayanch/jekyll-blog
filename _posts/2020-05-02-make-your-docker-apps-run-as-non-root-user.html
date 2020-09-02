@@ -1,0 +1,94 @@
+---
+layout: post
+status: publish
+published: true
+title: Make Your Docker Apps Run As Non-Root User
+author:
+  display_name: Gayan Karunarathna
+  login: gayan
+  email: gayan@meemek.com
+  url: http://blog.meemek.com
+author_login: gayan
+author_email: gayan@meemek.com
+author_url: http://blog.meemek.com
+wordpress_id: 55
+wordpress_url: https://blog.meemek.com/?p=55
+date: '2020-05-02 10:54:19 +0000'
+date_gmt: '2020-05-02 10:54:19 +0000'
+categories:
+- Linux
+tags:
+- Linux
+- Docker
+- Containers
+- User
+comments: []
+---
+<p><!-- wp:heading --></p>
+<h2>Intro</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>By default applications inside docker containers run as root user. Even though this is not a big issue compared to running user applications as root on a host OS, it is important to run containerized apps with a less privileged user. In that case, even If a malicious process was to break the container, it will still have less privileges and the extent of the damage will be less.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>The Dockerfile</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>For our task, we are going to use <strong>USER</strong> instruction of Dockerfiles. Refer the Dockerfile below,</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>FROM adoptopenjdk:8-jre-hotspot
+WORKDIR /app
+COPY demo.jar .
+RUN useradd -s /bin/bash appuser
+EXPOSE 8080
+USER appuser
+ENTRYPOINT ["java", "-jar", "/app/demo.jar"]</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p> For the purpose of this, I'm using <a href="https://adoptopenjdk.net/">AdpotOpenJDK</a>'s JRE version 8 base image and as the test application, there is a spring boot application named demo.jar</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Most important parts in the context of this article is RUN and USER commands. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>RUN useradd -s /bin/bash appuser</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>Above command creates a Linux user and a group inside the container. Our application will be started by this user.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>USER appuser</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>Above command instructs container runtime to execute all the commands after it with the specified user. In this case <strong>ENTRYPOINT</strong> will be executed with the user <strong>appuser</strong> which we have created previously</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>Build and Run</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Now it is time to test our implementation. First build the container as usual,</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>docker build . -t demoapp:v1</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>Then start the container,</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>docker run -it -d --name demoapp -p 8080:8080 demoapp:v1</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>Exec into the container and verify.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":57} --></p>
+<figure class="wp-block-image"><img src="/images/2020/05/blog1.png" alt="" class="wp-image-57" /><br />
+<figcaption>Container shell and application running with appuser</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>As we have observed, it is very easy to get container application to run as different user but this is not the only method to get this task accomplished. Hope you will discover those methods as well.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>-- END --</p>
+<p><!-- /wp:paragraph --></p>

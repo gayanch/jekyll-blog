@@ -1,0 +1,156 @@
+---
+layout: post
+status: publish
+published: true
+title: How to Manage Your Microservices With Systemd
+author:
+  display_name: Gayan Karunarathna
+  login: gayan
+  email: gayan@meemek.com
+  url: http://blog.meemek.com
+author_login: gayan
+author_email: gayan@meemek.com
+author_url: http://blog.meemek.com
+wordpress_id: 41
+wordpress_url: https://blog.meemek.com/?p=41
+date: '2019-06-30 15:32:48 +0000'
+date_gmt: '2019-06-30 15:32:48 +0000'
+categories:
+- Linux
+tags:
+- Linux
+- Systemd
+- unit
+- file
+- microservice
+comments:
+- id: 3
+  author: AffiliateLabz
+  author_email: ''
+  author_url: ''
+  date: '2020-02-16 06:19:51 +0000'
+  date_gmt: '2020-02-16 06:19:51 +0000'
+  content: Great content! Super high-quality! Keep it up! :)
+---
+<p><!-- wp:image {"id":48} --></p>
+<figure class="wp-block-image"><img src="/images/2019/06/linux-log.png" alt="" class="wp-image-48" /></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:heading --></p>
+<h2>Intro</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>In this post, we are going to create a systemd service for your microservice applications. First, a little bit of context on what this is all about.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Systemd is one of the most fundamental part of a Linux environment. It is the first process to be started when booting up the system and then it starts all the services which are configured to managed by the Systemd. Web servers, database systems and network services are a few widely known example services managed by Systemd.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>So what advantages does Systemd present when used to manage your microservices or any other service for that matter? Let's check out a few,</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Automatic startup of services on system restarts and application crashes</li>
+<li>Start, stop, restart and check status of services through a single service</li>
+<li>Easy integration of your own services with Systemd via unit files</li>
+<li>Hassle free service dependency management</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>And many more. Go figure if you are into this kind of stuff ;)</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:separator --></p>
+<hr class="wp-block-separator" />
+<!-- /wp:separator --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, now that we are done with chit chat, let's jump into action. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>Unit File</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Unit file describes how particular service should be handled by Systemd. There is a lot options to be used if someone wanted but for the sake of simplicity we are going to write a very simple version of it.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>[Unit]
+Description=Service API
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/serviceapi/api
+Restart=always
+User=gayan
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>The most important sections are, <strong>ExecStart</strong> and <strong>User</strong> sections. Below is a brief of most important options,</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li><strong>ExecStart</strong> - Defines the absolute path to binary in which the service is available</li>
+<li><strong>User</strong> - This directive defines the user which application should run on. </li>
+<li><strong>After</strong> - The service will be started after the services defined here are started. Being a microservice we need network services up before starting our service</li>
+<li><strong>Restart</strong> - Tells Systemd to when to restart the service. In this case, always means that Systemd will try to restart the service whenever it stops</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Now that you have a unit file, save it as <strong>servicapi.service</strong>. I have a microservice binary named <strong>api</strong>. I need to copy it into <strong>/opt/serviceapi/</strong> directory which is what defined in ExecStart section of our service file. Change ExecStart section to match your needs.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Now copy <strong>serviceapi.service</strong> into <strong>/etc/systemd/system/</strong> directory and execute the following command</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>sudo systemctl daemon-reload</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>If the above command is completed without any errors, Now Systemd is aware of our service. If not check the service file for any mistakes. Now let's go ahead and start our service,</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>sudo systemctl start serviceapi</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>Above command should complete without any errors. After that we can check the status of our service</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>systemctl status serviceapi</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:image {"id":44} --></p>
+<figure class="wp-block-image"><img src="/images/2019/06/systemd-output.png" alt="" class="wp-image-44" /><br />
+<figcaption>The service is running</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here is some other things we can do with Systemd,</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>#Restart the service
+sudo systemctl restart serviceapi
+
+#Stop
+sudo systemctl stop serviceapi
+
+#check logs 
+journalctl -f -u serviceapi</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:image {"id":45} --></p>
+<figure class="wp-block-image"><img src="/images/2019/06/journalctl-output.png" alt="" class="wp-image-45" /><br />
+<figcaption>journalctl output</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:heading --></p>
+<h2>Start at System Startup</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Use following command to instruct Systemd to start our service at system startup.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>sudo systemctl enable serviceapi</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>And just like that we have integrated a service with Systemd. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>-- The End --</p>
+<p><!-- /wp:paragraph --></p>
